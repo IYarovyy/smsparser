@@ -162,3 +162,5 @@ cython_debug/
 
 /in/
 /out/
+/err/
+/.idea/

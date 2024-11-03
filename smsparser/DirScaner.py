@@ -12,6 +12,6 @@ class DirScaner:
         with out.status("[bold green]Working..."):
             for root, dirs, files in os.walk(self.in_folder):
                 for file in files:
-                    if not file.startswith("."):
+                    if not file.startswith(".") and not file.startswith("~"):
                         self.fileParser.parse(join(root, file))
-                        # out.print("[green]:heavy_check_mark: {}[/green]".format(file))
+                        out.print("[green]:heavy_check_mark: {}[/green]".format(file))
