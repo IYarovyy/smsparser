@@ -12,9 +12,11 @@ from smsparser.RowParser import RowParser
 
 
 class FileParser:
-    def __init__(self, out_folder, err_folder):
+    def __init__(self, out_folder, err_folder, valid_row, out_file):
         self.out_folder = out_folder
         self.err_folder = err_folder
+        self.valid_row = valid_row
+        self.out_file = out_file
 
     def parse(self, file):
         wb = openpyxl.load_workbook(file, data_only=True)
@@ -24,7 +26,9 @@ class FileParser:
             os.makedirs(self.err_folder, exist_ok=True)
 
             try:
-                with open(join(self.out_folder, csv_file_name), "wt") as csv_file:
+                file_is_empty = True
+                file_name = join(self.out_folder, csv_file_name)
+                with open(file_name, "wt") as csv_file:
                     writer = csv.writer(csv_file, delimiter=',')
                     header_row = []
                     for cell in sheet[1]:
@@ -36,23 +40,19 @@ class FileParser:
 
                     for row in sheet.iter_rows(min_row=2):
                         parser = RowParser(header, row)
-                        sender = parser.get_sender()
-                        recipient = parser.get_recipient()
 
-                        # Skip row
-                        if sender is None \
-                                or recipient is None \
-                                or sender == 'None' \
-                                or recipient == 'None':
-                            continue
-
-                        writer.writerow([parser.get_time(),
-                                         parser.get_sender(),
-                                         parser.get_recipient(),
-                                         parser.get_text(),
-                                         parser.get_lac(),
-                                         parser.get_cell(),
-                                         parser.get_address()])
+                        row = [parser.get_time(),
+                               parser.get_sender(),
+                               parser.get_recipient(),
+                               parser.get_text(),
+                               parser.get_lac(),
+                               parser.get_cell(),
+                               parser.get_address()]
+                        if self.valid_row(*row):
+                            writer.writerow(row)
+                            file_is_empty = False
+                if file_is_empty:
+                    os.remove(file_name)
             except Exception as inst:
                 print(str(file), file=sys.stderr)
                 print(traceback.format_exc(), file=sys.stderr)
