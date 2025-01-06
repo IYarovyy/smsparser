@@ -12,11 +12,10 @@ from smsparser.RowParser import RowParser
 
 
 class FileParser:
-    def __init__(self, out_folder, err_folder, valid_row, out_file):
+    def __init__(self, out_folder, err_folder, valid_row):
         self.out_folder = out_folder
         self.err_folder = err_folder
         self.valid_row = valid_row
-        self.out_file = out_file
 
     def parse(self, file):
         wb = openpyxl.load_workbook(file, data_only=True)
